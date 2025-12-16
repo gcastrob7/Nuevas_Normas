@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MOCK_NORMS, CATEGORY_COLORS } from '../constants';
-import { ArrowLeft, Download, Share2, Printer, Save, CheckCircle, X, Copy, Mail, Linkedin, Twitter, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Download, Share2, Printer, Save, CheckCircle, X, Copy, Mail, Linkedin, Twitter, MessageCircle, Loader2, FileText, Send } from 'lucide-react';
 import { jsPDF } from "jspdf";
 
 const NormDetail: React.FC = () => {
@@ -11,6 +11,11 @@ const NormDetail: React.FC = () => {
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isEmailShareModalOpen, setIsEmailShareModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [emailForm, setEmailForm] = useState({ email: '', message: '' });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -18,7 +23,6 @@ const NormDetail: React.FC = () => {
   };
 
   // Helper function to generate the PDF document object
-  // This ensures consistency between "Save" and "Print"
   const generatePdfDoc = (): jsPDF | null => {
     if (!norm) return null;
 
@@ -28,13 +32,13 @@ const NormDetail: React.FC = () => {
       format: 'a4'
     });
 
-    // Add professional metadata to the PDF file
+    // Metadata
     doc.setProperties({
         title: `${norm.type} ${norm.number} - ${norm.title}`,
         subject: norm.summary,
-        author: norm.issuingAuthority,
+        author: 'NuevasNormas - Monitor Regulatorio',
         keywords: `${norm.category}, ${norm.type}, Colombia`,
-        creator: 'NormaComex Platform'
+        creator: 'Plataforma NuevasNormas'
     });
 
     const margin = 20;
@@ -44,126 +48,184 @@ const NormDetail: React.FC = () => {
     
     // --- Document Header ---
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
+    doc.setFontSize(18);
+    doc.setTextColor(30, 41, 59); // nc-navy
     doc.text(`${norm.type} ${norm.number}`, margin, margin);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Autoridad: ${norm.issuingAuthority}`, margin, margin + 7);
-    doc.text(`Fecha: ${norm.date}`, margin, margin + 12);
-    doc.text(`Categoría: ${norm.category}`, margin, margin + 17);
+    doc.text(`Autoridad: ${norm.issuingAuthority}`, margin, margin + 8);
+    doc.text(`Fecha de expedición: ${norm.date}`, margin, margin + 13);
+    doc.text(`Categoría: ${norm.category}`, margin, margin + 18);
     
-    // Separator
+    // Separator line
     doc.setDrawColor(200);
-    doc.line(margin, margin + 22, pageWidth - margin, margin + 22);
+    doc.setLineWidth(0.5);
+    doc.line(margin, margin + 24, pageWidth - margin, margin + 24);
     
-    // --- Title ---
+    // --- Title / Object ---
     doc.setTextColor(0);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    const titleLines = doc.splitTextToSize(norm.title, contentWidth);
-    doc.text(titleLines, margin, margin + 30);
     
-    let yPos = margin + 30 + (titleLines.length * 5) + 5;
+    const titleLines = doc.splitTextToSize(norm.title, contentWidth);
+    doc.text(titleLines, margin, margin + 32);
+    
+    // Calculate Y position after title
+    let yPos = margin + 32 + (titleLines.length * 5) + 10;
 
-    // --- Content ---
+    // --- Content Body ---
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
+    doc.setTextColor(50);
     
     const textContent = norm.fullText || "Contenido no disponible.";
+    // Split text into lines that fit the width
     const splitText = doc.splitTextToSize(textContent, contentWidth);
     
-    // Pagination Loop
+    // Pagination & Content Loop
     for(let i = 0; i < splitText.length; i++) {
-        if (yPos > pageHeight - margin) {
+        // Check if we need a new page
+        if (yPos > pageHeight - margin - 10) { // -10 for footer space
+            // Add Footer before new page
+            const pageCount = doc.getNumberOfPages();
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Generado por NuevasNormas - Pág. ${pageCount}`, margin, pageHeight - 10);
+            
             doc.addPage();
             yPos = margin;
+            
+            // Reset font styles for body
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(50);
         }
+        
         doc.text(splitText[i], margin, yPos);
-        yPos += 5; 
+        yPos += 5; // Line height
     }
+
+    // Footer on last page
+    const pageCount = doc.getNumberOfPages();
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text(`Generado por NuevasNormas - Pág. ${pageCount}`, margin, pageHeight - 10);
 
     return doc;
   };
 
-  const handleSaveToComputer = () => {
+  const handleSaveToComputer = async () => {
     if (!norm) return;
-    try {
-        const doc = generatePdfDoc();
-        if (doc) {
-            // Explicitly use Blob generation for maximum compatibility
-            const blob = doc.output('blob');
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            
-            // Advanced Sanitization for filename
-            // 1. Get title or default
-            let cleanTitle = norm.title || "Documento";
-            // 2. Normalize to NFD to separate accents (e.g., é -> e + ´) and remove them
-            cleanTitle = cleanTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            // 3. Remove all non-alphanumeric characters except spaces
-            cleanTitle = cleanTitle.replace(/[^a-zA-Z0-9\s]/g, "");
-            // 4. Truncate length
-            cleanTitle = cleanTitle.substring(0, 50).trim();
-            // 5. Replace spaces with underscores
-            cleanTitle = cleanTitle.replace(/\s+/g, "_");
+    setIsGenerating(true);
 
-            const cleanType = norm.type.replace(/[^a-zA-Z0-9]/g, "");
-            const cleanNumber = norm.number.replace(/[^a-zA-Z0-9]/g, "");
-                
-            const filename = `Norma_${cleanType}_${cleanNumber}_${cleanTitle}.pdf`;
+    // Small timeout to allow UI to update (show spinner)
+    setTimeout(() => {
+        try {
+            const doc = generatePdfDoc();
+            if (doc) {
+                // Advanced Sanitization for filename
+                let cleanTitle = norm.title || "Documento";
+                cleanTitle = cleanTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove accents
+                cleanTitle = cleanTitle.replace(/[^a-zA-Z0-9\s]/g, ""); // Remove special chars
+                cleanTitle = cleanTitle.substring(0, 40).trim().replace(/\s+/g, "_"); // Truncate and snake_case
 
-            link.href = url;
-            link.setAttribute('download', filename);
-            
-            // Append to body is required for Firefox and some mobile browsers
-            document.body.appendChild(link);
-            
-            link.click();
-            
-            // Clean up resources
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+                const cleanType = norm.type.replace(/[^a-zA-Z0-9]/g, "");
+                const cleanNumber = norm.number.replace(/[^a-zA-Z0-9]/g, "");
+                    
+                const filename = `${cleanType}_${cleanNumber}_${cleanTitle}.pdf`;
 
-            showToast("Archivo guardado exitosamente");
+                doc.save(filename);
+                showToast("Archivo descargado exitosamente");
+            }
+        } catch (e) {
+            console.error("PDF Generation Error:", e);
+            showToast("Error al generar el archivo");
+        } finally {
+            setIsGenerating(false);
         }
-    } catch (e) {
-        console.error("PDF Generation Error:", e);
-        showToast("Error al generar el archivo");
-    }
+    }, 100);
   };
 
   const handlePrint = () => {
     if (!norm) return;
-    try {
+    setIsPrinting(true);
+
+    // Give UI a moment to show spinner
+    setTimeout(() => {
+      try {
         const doc = generatePdfDoc();
         if (doc) {
-            // Adds JS to the PDF to trigger print dialog automatically when opened
-            doc.autoPrint(); 
-            
-            // Create a Blob URL for the PDF
-            const blob = doc.output('blob');
-            const url = URL.createObjectURL(blob);
-            
-            // Open the PDF in a new window/tab
-            // This allows the browser's native PDF viewer to handle the printing "as a file"
-            window.open(url, '_blank');
-            
-            // Cleanup URL object after a delay to ensure it loaded
-            setTimeout(() => URL.revokeObjectURL(url), 60000);
+           doc.autoPrint();
+           const blob = doc.output('blob');
+           const url = URL.createObjectURL(blob);
+           
+           // Create hidden iframe for printing
+           const iframe = document.createElement('iframe');
+           // Make it invisible but part of layout to ensure loading
+           iframe.style.position = 'fixed';
+           iframe.style.width = '1px';
+           iframe.style.height = '1px';
+           iframe.style.left = '-1000px';
+           iframe.style.top = '-1000px';
+           iframe.src = url;
+           
+           document.body.appendChild(iframe);
+           
+           // Print when loaded
+           iframe.onload = () => {
+             // Small delay for rendering
+             setTimeout(() => {
+                 try {
+                     iframe.contentWindow?.print();
+                 } catch (e) {
+                     // Fallback if iframe print is blocked
+                     window.open(url, '_blank');
+                 }
+                 
+                 // Cleanup
+                 setIsPrinting(false);
+                 setTimeout(() => {
+                     document.body.removeChild(iframe);
+                     URL.revokeObjectURL(url);
+                 }, 60000); // 1 minute cleanup delay to allow print dialog to work
+             }, 500);
+           };
+        } else {
+             setIsPrinting(false);
         }
-    } catch (e) {
-        console.error("Print Error:", e);
-        // Fallback to standard window print if PDF generation fails
-        window.print();
-    }
+      } catch (e) {
+          console.error(e);
+          showToast("Error al iniciar impresión");
+          setIsPrinting(false);
+      }
+    }, 100);
   };
 
   const toggleShareModal = () => {
     setIsShareModalOpen(!isShareModalOpen);
+  };
+
+  const handleOpenEmailShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsShareModalOpen(false);
+    setIsEmailShareModalOpen(true);
+  };
+
+  const handleSendEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailForm.email) return;
+
+    setIsSendingEmail(true);
+
+    // Simulate sending delay
+    setTimeout(() => {
+        setIsSendingEmail(false);
+        setIsEmailShareModalOpen(false);
+        setEmailForm({ email: '', message: '' }); // Reset form
+        showToast("Norma enviada exitosamente por correo");
+    }, 2000);
   };
 
   const copyToClipboard = async () => {
@@ -193,6 +255,7 @@ const NormDetail: React.FC = () => {
         whatsapp: `https://api.whatsapp.com/send?text=${text}%20${url}`,
         linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
         twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+        // We use a custom handler for email now, but keep this generator for reference if needed
         email: `mailto:?subject=${encodeURIComponent(`Norma: ${norm.type} ${norm.number}`)}&body=${text}%0A%0A${url}`
     };
   };
@@ -243,9 +306,12 @@ const NormDetail: React.FC = () => {
                         <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-3 rounded-lg bg-black text-white hover:opacity-90 transition-opacity font-medium text-sm">
                             <Twitter size={18} /> X / Twitter
                         </a>
-                        <a href={socialLinks.email} className="flex items-center justify-center gap-2 p-3 rounded-lg bg-slate-600 text-white hover:opacity-90 transition-opacity font-medium text-sm">
+                        <button 
+                            onClick={handleOpenEmailShare}
+                            className="flex items-center justify-center gap-2 p-3 rounded-lg bg-slate-600 text-white hover:opacity-90 transition-opacity font-medium text-sm"
+                        >
                             <Mail size={18} /> Correo
-                        </a>
+                        </button>
                     </div>
 
                     <div className="relative">
@@ -266,6 +332,97 @@ const NormDetail: React.FC = () => {
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+      )}
+
+      {/* Email Send Modal */}
+      {isEmailShareModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 print:hidden" onClick={() => setIsEmailShareModalOpen(false)}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                        <Mail className="text-nc-teal" size={20} /> Enviar Norma por Correo
+                    </h3>
+                    <button onClick={() => setIsEmailShareModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+                
+                <form onSubmit={handleSendEmail} className="p-6">
+                    <p className="text-sm text-slate-600 mb-6">
+                        Envía una copia digital de <span className="font-semibold text-slate-800">{norm.type} {norm.number}</span> directamente a un colega o cliente.
+                    </p>
+
+                    {/* Attachment Simulation */}
+                    <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-red-500 shadow-sm border border-slate-100 shrink-0">
+                            <FileText size={24} />
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-bold text-slate-800 truncate">{norm.type}_{norm.number}.pdf</p>
+                            <p className="text-xs text-slate-500 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Archivo adjunto listo
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="share-email" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                Para (Correo Electrónico) <span className="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="share-email"
+                                required
+                                value={emailForm.email}
+                                onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
+                                placeholder="destinatario@ejemplo.com"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-nc-teal focus:bg-white transition-all text-sm text-slate-900"
+                            />
+                        </div>
+                        
+                        <div>
+                            <label htmlFor="share-message" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                Mensaje (Opcional)
+                            </label>
+                            <textarea 
+                                id="share-message"
+                                rows={3}
+                                value={emailForm.message}
+                                onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
+                                placeholder="Te comparto esta norma que puede ser de tu interés..."
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-nc-teal focus:bg-white transition-all text-sm resize-none text-slate-900"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex gap-3">
+                        <button 
+                            type="button"
+                            onClick={() => setIsEmailShareModalOpen(false)}
+                            className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-sm transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit"
+                            disabled={isSendingEmail || !emailForm.email}
+                            className="flex-[2] px-4 py-3 bg-nc-teal hover:bg-teal-700 text-white rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-teal-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isSendingEmail ? (
+                                <>
+                                    <Loader2 size={18} className="animate-spin" /> Enviando...
+                                </>
+                            ) : (
+                                <>
+                                    <Send size={18} /> Enviar Documento
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
       )}
@@ -303,17 +460,19 @@ const NormDetail: React.FC = () => {
           <div className="flex gap-2 print:hidden">
             <button 
               onClick={handleSaveToComputer}
-              className="p-2 text-slate-400 hover:text-nc-teal hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-100" 
-              title="Guardar archivo en computador"
+              disabled={isGenerating || isPrinting}
+              className="p-2 text-slate-400 hover:text-nc-teal hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-100 disabled:opacity-50" 
+              title="Descargar archivo en computador"
             >
-              <Save size={20} />
+              {isGenerating ? <Loader2 size={20} className="animate-spin text-nc-teal" /> : <Save size={20} />}
             </button>
              <button 
                onClick={handlePrint}
-               className="p-2 text-slate-400 hover:text-nc-navy hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200" 
-               title="Imprimir"
+               disabled={isGenerating || isPrinting}
+               className="p-2 text-slate-400 hover:text-nc-navy hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200 disabled:opacity-50" 
+               title="Imprimir Documento Oficial"
              >
-              <Printer size={20} />
+              {isPrinting ? <Loader2 size={20} className="animate-spin text-nc-navy" /> : <Printer size={20} />}
             </button>
              <button 
                onClick={toggleShareModal}
@@ -353,9 +512,11 @@ const NormDetail: React.FC = () => {
             <h2 className="text-xl font-bold text-nc-navy">Texto de la Norma</h2>
             <button 
               onClick={handleSaveToComputer}
-              className="flex items-center gap-2 bg-nc-navy text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-blue-900/20 text-sm font-medium active:transform active:scale-95 print:hidden"
+              disabled={isGenerating || isPrinting}
+              className="flex items-center gap-2 bg-nc-navy text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-blue-900/20 text-sm font-medium active:transform active:scale-95 print:hidden disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <Download size={16} /> Descargar PDF Completo
+              {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
+              {isGenerating ? 'Generando...' : 'Descargar PDF Completo'}
             </button>
          </div>
          

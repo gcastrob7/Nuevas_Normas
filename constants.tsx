@@ -2,20 +2,23 @@ import { Category, Norm } from './types';
 import React from 'react';
 import { Scale, RefreshCw, FileText, Globe } from 'lucide-react';
 
+// Fecha simulada de "hoy" actualizada a Diciembre 15, 2025
+const TODAY = '2025-12-15';
+
 export const MOCK_NORMS: Norm[] = [
   {
     id: '1',
     title: 'Modernización Digital del Régimen de Aduanas 2025',
     type: 'Decreto',
     number: '0125',
-    date: '2025-02-15',
+    date: TODAY,
     category: Category.ADUANERA,
     issuingAuthority: 'MinCIT',
     summary: 'Establece la obligatoriedad de la declaración aduanera 100% digital y elimina la presentación física de documentos para importaciones menores a 50.000 USD. Introduce carriles exclusivos para OEA con IA.',
     fullText: `MINISTERIO DE COMERCIO, INDUSTRIA Y TURISMO
 
 DECRETO NÚMERO 0125 DE 2025
-(15 de febrero)
+(15 de diciembre)
 
 Por el cual se modifica parcialmente el Decreto 1165 de 2019 y se dictan disposiciones para la completa desmaterialización de las operaciones aduaneras y el uso de inteligencia artificial en el control simultáneo.
 
@@ -43,7 +46,7 @@ ARTÍCULO 2. Definiciones. Para efectos del presente decreto, adiciónense las s
 CAPÍTULO II
 DE LA DECLARACIÓN 100% DIGITAL
 
-ARTÍCULO 3. Obligatoriedad. A partir del 1 de marzo de 2025, todas las declaraciones de importación y exportación deberán presentarse exclusivamente a través de los Servicios Informáticos Electrónicos (SIE) de la DIAN, utilizando firma digital certificada. No se admitirá la presentación de formularios litográficos en ninguna administración aduanera del país.
+ARTÍCULO 3. Obligatoriedad. A partir del 1 de febrero de 2026, todas las declaraciones de importación y exportación deberán presentarse exclusivamente a través de los Servicios Informáticos Electrónicos (SIE) de la DIAN, utilizando firma digital certificada. No se admitirá la presentación de formularios litográficos en ninguna administración aduanera del país.
 
 ARTÍCULO 4. Eliminación de documentos físicos para importaciones menores. Para las importaciones cuyo valor FOB sea inferior a cincuenta mil dólares de los Estados Unidos de América (USD 50.000), no será exigible la impresión física de la Declaración Andina del Valor ni de los documentos soporte, los cuales deberán reposar exclusivamente en el repositorio digital del importador o de la Agencia de Aduanas, disponibles para consulta remota por parte de la autoridad aduanera.
 
@@ -59,7 +62,7 @@ ARTÍCULO 6. Inspección No Intrusiva. Las inspecciones físicas para OEA se sus
 ARTÍCULO 7. Vigencia y Derogatorias. El presente decreto rige a partir de la fecha de su publicación en el Diario Oficial y deroga las disposiciones que le sean contrarias.
 
 PUBLÍQUESE Y CÚMPLASE.
-Dado en Bogotá, D.C., a los 15 días del mes de febrero de 2025.`,
+Dado en Bogotá, D.C., a los 15 días del mes de diciembre de 2025.`,
     isNew: true,
   },
   {
@@ -67,7 +70,7 @@ Dado en Bogotá, D.C., a los 15 días del mes de febrero de 2025.`,
     title: 'Reglamentación de Criptoactivos en Operaciones de Cambio',
     type: 'Circular',
     number: 'DCIN-84',
-    date: '2025-02-12',
+    date: TODAY,
     category: Category.CAMBIARIA,
     issuingAuthority: 'Banco de la República',
     summary: 'Nueva reglamentación que permite canalizar divisas a través de proveedores de servicios de activos virtuales (PSAV) autorizados para operaciones de comercio exterior de servicios.',
@@ -75,7 +78,7 @@ Dado en Bogotá, D.C., a los 15 días del mes de febrero de 2025.`,
 SECRETARÍA DE LA JUNTA DIRECTIVA
 
 CIRCULAR REGLAMENTARIA EXTERNA DCIN-84
-(Febrero 12 de 2025)
+(Diciembre 15 de 2025)
 
 Asunto: Modificación a los Procedimientos Aplicables a las Operaciones de Cambio. Canalización a través de Proveedores de Servicios de Activos Virtuales (PSAV).
 
@@ -152,7 +155,7 @@ Dada en Bogotá D.C., a los 28 días del mes de enero de 2025.`,
     title: 'Certificado de Carbono para Importaciones Industriales',
     type: 'Resolución',
     number: '2150',
-    date: '2025-02-05',
+    date: TODAY,
     category: Category.COMERCIO_EXTERIOR,
     issuingAuthority: 'MinCIT / MinAmbiente',
     summary: 'Implementa el Mecanismo de Ajuste en Frontera por Carbono (CBAM) para la importación de acero, cemento y aluminio, exigiendo certificados de emisiones desde origen.',
@@ -160,7 +163,7 @@ Dada en Bogotá D.C., a los 28 días del mes de enero de 2025.`,
 MINISTERIO DE AMBIENTE Y DESARROLLO SOSTENIBLE
 
 RESOLUCIÓN CONJUNTA 2150 DE 2025
-(Febrero 05)
+(Diciembre 15)
 
 Por la cual se reglamenta el Mecanismo de Ajuste en Frontera por Carbono (CBAM) para importaciones industriales en Colombia.
 
@@ -172,7 +175,7 @@ ARTÍCULO 1. Objeto y ámbito de aplicación.
 Establecer los requisitos técnicos y documentales para la importación de mercancías clasificadas en las partidas arancelarias correspondientes a cemento, acero, hierro y aluminio, con el fin de mitigar la fuga de carbono y cumplir con los compromisos del Acuerdo de París.
 
 ARTÍCULO 2. Certificado de Emisiones en Origen.
-A partir del 1 de junio de 2025, todo importador de los bienes señalados en el artículo anterior deberá presentar, como documento soporte de la declaración de importación, un Certificado de Emisiones de Carbono expedido por un organismo verificador acreditado en el país de origen.
+A partir del 1 de marzo de 2026, todo importador de los bienes señalados en el artículo anterior deberá presentar, como documento soporte de la declaración de importación, un Certificado de Emisiones de Carbono expedido por un organismo verificador acreditado en el país de origen.
 
 ARTÍCULO 3. Exenciones.
 Estarán exentas de esta medida las importaciones provenientes de países con los que Colombia tenga acuerdos de reconocimiento mutuo de estándares ambientales o sistemas de comercio de emisiones equivalentes.
@@ -189,7 +192,7 @@ La presente resolución rige a partir de su publicación en el Diario Oficial.`,
     title: 'Clasificación Arancelaria de Servicios de Inteligencia Artificial',
     type: 'Concepto',
     number: '100202208-023',
-    date: '2025-02-14',
+    date: TODAY,
     category: Category.ADUANERA,
     issuingAuthority: 'DIAN',
     summary: 'Aclara el tratamiento arancelario y valoración en aduana de software que integra módulos de IA generativa importados mediante soporte físico vs. descarga electrónica.',
@@ -197,7 +200,7 @@ La presente resolución rige a partir de su publicación en el Diario Oficial.`,
 SUBDIRECCIÓN DE NORMATIVA Y DOCTRINA
 
 CONCEPTO 100202208-023
-(Febrero 14 de 2025)
+(Diciembre 15 de 2025)
 
 Tema: Impuesto sobre las ventas / Arancel
 Descriptores: Importación de Software con IA Generativa - Valoración Aduanera
@@ -222,6 +225,160 @@ Se insta a los usuarios aduaneros a declarar correctamente la modalidad de ingre
 Cordialmente,
 
 Subdirector de Normativa y Doctrina.`,
+    isNew: true,
+  },
+  {
+    id: '6',
+    title: 'Ajustes al Régimen de Zonas Francas 4.0',
+    type: 'Decreto',
+    number: '0045',
+    date: TODAY,
+    category: Category.ADUANERA,
+    issuingAuthority: 'MinCIT',
+    summary: 'Modifica los requisitos para la calificación de usuarios de Zona Franca y establece nuevos compromisos de exportación de servicios para mantener la tarifa diferencial de renta.',
+    fullText: `MINISTERIO DE COMERCIO, INDUSTRIA Y TURISMO
+
+DECRETO NÚMERO 0045 DE 2025
+(Diciembre 15)
+
+Por el cual se modifican artículos del Decreto 2147 de 2016 relativos al régimen de Zonas Francas.
+
+EL PRESIDENTE DE LA REPÚBLICA DE COLOMBIA,
+
+DECRETA:
+
+ARTÍCULO 1. Plan de Internacionalización.
+Los usuarios industriales de bienes y servicios calificados en Zonas Francas Permanentes deberán presentar, antes del 30 de marzo de cada año, un Plan de Internacionalización y Ventas Anuales. El incumplimiento de los umbrales de exportación definidos en este plan acarreará la pérdida de los beneficios tributarios en el impuesto sobre la renta.
+
+ARTÍCULO 2. Trabajo Híbrido.
+Se autoriza de manera permanente la realización de labores fuera del área declarada como Zona Franca hasta por el 50% de la planta de personal, sin que esto configure una violación al principio de exclusividad, siempre que se garantice el control aduanero sobre los bienes ingresados.
+
+ARTÍCULO 3. Vigencia.
+Rige a partir de su publicación.`,
+    isNew: true,
+  },
+  {
+    id: '7',
+    title: 'Implementación Factura Electrónica Servicios Públicos',
+    type: 'Resolución',
+    number: '000025',
+    date: '2025-02-10',
+    category: Category.TRIBUTARIA,
+    issuingAuthority: 'DIAN',
+    summary: 'Establece el calendario y anexo técnico para que las empresas de servicios públicos domiciliarios expidan factura electrónica de venta, eliminando gradualmente el documento equivalente.',
+    fullText: `DIRECCIÓN DE IMPUESTOS Y ADUANAS NACIONALES
+
+RESOLUCIÓN 000025 DE 2025
+(Febrero 10)
+
+Por la cual se desarrolla el sistema de facturación electrónica para servicios públicos domiciliarios.
+
+EL DIRECTOR GENERAL DE LA DIAN,
+
+RESUELVE:
+
+ARTÍCULO 1. Sujetos obligados.
+Las empresas prestadoras de servicios públicos domiciliarios de acueducto, alcantarillado, aseo, energía eléctrica, distribución de gas combustible y telefonía pública básica conmutada, deberán expedir factura electrónica de venta.
+
+ARTÍCULO 2. Calendario de Implementación.
+Grupo 1: Grandes Contribuyentes - Inician 1 de Mayo de 2025.
+Grupo 2: Demás responsables - Inician 1 de Agosto de 2025.
+
+ARTÍCULO 3. Documento Equivalente.
+El documento equivalente de servicios públicos vigente podrá utilizarse hasta la fecha máxima de implementación señalada en el artículo anterior.
+
+ARTÍCULO 4. Validez Fiscal.
+Para la procedencia de costos y deducciones en el impuesto sobre la renta e impuestos descontables en IVA, los usuarios deberán exigir la factura electrónica validada previamente por la DIAN.`,
+    isNew: false,
+  },
+  {
+    id: '8',
+    title: 'Nuevo Sistema de Reporte de Inversiones Internacionales',
+    type: 'Circular',
+    number: 'DCIN-85',
+    date: TODAY,
+    category: Category.CAMBIARIA,
+    issuingAuthority: 'Banco de la República',
+    summary: 'Actualiza los procedimientos para el registro de inversiones internacionales, introduciendo el "Sistema de Información Cambiaria 2.0" para reportes en tiempo real.',
+    fullText: `BANCO DE LA REPÚBLICA
+DEPARTAMENTO DE CAMBIOS INTERNACIONALES
+
+CIRCULAR REGLAMENTARIA EXTERNA DCIN-85
+(Diciembre 15 de 2025)
+
+Asunto: Inversiones Internacionales. Modificación DCIN-83.
+
+1. Registro Automático.
+El registro de la inversión extranjera en Colombia y de la inversión colombiana en el exterior se entenderá efectuado con la presentación de la declaración de cambio (Formulario 4 o equivalente digital) al momento de la canalización de las divisas por medio de los Intermediarios del Mercado Cambiario (IMC).
+
+2. Sistema de Información Cambiaria 2.0.
+A partir del 1 de febrero de 2026, todos los movimientos de capital, sustituciones y cancelaciones de inversiones deberán reportarse exclusivamente a través de la plataforma web del Banco de la República, eliminando los reportes físicos o por correo electrónico.
+
+3. Sanciones.
+El reporte extemporáneo o inexacto en el nuevo sistema dará lugar a la imposición de sanciones por parte de la Superintendencia de Sociedades o la Superintendencia Financiera, según corresponda.`,
+    isNew: true,
+  },
+  {
+    id: '9',
+    title: 'Derechos Antidumping Importaciones Aluminio',
+    type: 'Resolución',
+    number: '045',
+    date: '2025-01-30',
+    category: Category.COMERCIO_EXTERIOR,
+    issuingAuthority: 'MinCIT',
+    summary: 'Impone derechos antidumping definitivos a las importaciones de perfiles de aluminio extrurido originarios de la República Popular China para proteger la industria nacional.',
+    fullText: `MINISTERIO DE COMERCIO, INDUSTRIA Y TURISMO
+
+RESOLUCIÓN 045 DE 2025
+(Enero 30)
+
+Por la cual se adoptan medidas definitivas en la investigación por dumping en importaciones de perfiles de aluminio.
+
+EL VICEMINISTRO DE COMERCIO EXTERIOR,
+
+RESUELVE:
+
+ARTÍCULO 1. Derechos Definitivos.
+Imponer derechos antidumping definitivos a las importaciones de perfiles de aluminio clasificados en la subpartida arancelaria 7604.21.00.00 originarias de la República Popular China.
+
+ARTÍCULO 2. Cuantía.
+El derecho consistirá en un valor ad valorem del 35% sobre el valor FOB de la importación, adicional al arancel de aduanas vigente.
+
+ARTÍCULO 3. Vigencia.
+La medida tendrá una vigencia de dos (2) años contados a partir de la publicación de la presente resolución.`,
+    isNew: false,
+  },
+  {
+    id: '10',
+    title: 'Dispositivos Electrónicos de Seguridad en Tránsito',
+    type: 'Resolución',
+    number: '001240',
+    date: TODAY,
+    category: Category.ADUANERA,
+    issuingAuthority: 'DIAN',
+    summary: 'Reglamenta el uso obligatorio de precintos electrónicos con geolocalización para mercancías en tránsito aduanero y transporte multimodal.',
+    fullText: `DIRECCIÓN DE IMPUESTOS Y ADUANAS NACIONALES
+
+RESOLUCIÓN 001240 DE 2025
+(Diciembre 15)
+
+Por la cual se dictan disposiciones sobre dispositivos electrónicos de seguridad.
+
+EL DIRECTOR DE GESTIÓN DE ADUANAS,
+
+CONSIDERANDO:
+La necesidad de asegurar la trazabilidad de la carga en operaciones de Tránsito Aduanero (DTA) y evitar la contaminación de la carga o el contrabando técnico.
+
+RESUELVE:
+
+ARTÍCULO 1. Obligatoriedad.
+Toda operación de Tránsito Aduanero (DTA) y Continuación de Viaje que se inicie en puerto marítimo con destino a Zona Franca o Depósito Habilitado, deberá contar con un dispositivo electrónico de seguridad (precinto electrónico) activado y monitoreado.
+
+ARTÍCULO 2. Especificaciones Técnicas.
+Los dispositivos deben garantizar la transmisión de datos vía GPS/GPRS en tiempo real a la plataforma de la DIAN, alertando sobre apertura no autorizada, desvío de ruta o paradas injustificadas.
+
+ARTÍCULO 3. Responsabilidad.
+Será responsabilidad del declarante y del transportador verificar la correcta colocación y funcionamiento del dispositivo antes de la salida de la mercancía del lugar de arribo.`,
     isNew: true,
   }
 ];
